@@ -1,4 +1,4 @@
-# Copy Link with Animation (Firefox Extension)
+# Arc Like Copy Link with Animation (Firefox Extension)
 
 This extension copies the current tab's URL to your clipboard with a single click. The toolbar icon animates from a link to a checkmark and back, and its color adapts to the browser's light or dark theme.
 
