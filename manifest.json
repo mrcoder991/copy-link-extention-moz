@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Arc Like Copy Link",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Copies the current tab's URL to clipboard with animated icon and theme-aware color.",
   "permissions": [
     "activeTab",
