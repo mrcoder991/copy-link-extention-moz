@@ -6,7 +6,8 @@
   "permissions": [
     "activeTab",
     "clipboardWrite",
-    "theme"
+    "theme",
+    "storage"
   ],
   "background": {
     "service_worker": "background.js",
@@ -19,6 +20,17 @@
       "32": "icons/link-dark.svg"
     }
   },
+  "page_action": {
+    "default_title": "Copy current page URL",
+    "default_icon": {
+      "16": "icons/link-dark.svg",
+      "32": "icons/link-dark.svg"
+    }
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
   "icons": {
     "16": "icons/link-dark.svg",
     "32": "icons/link-dark.svg",
@@ -26,8 +38,8 @@
     "128": "icons/link-dark.svg"
   },
   "browser_specific_settings": {
-  "gecko": {
-    "id": "udaygirhepunje41arc-like-copy-link@gmail.com"
+    "gecko": {
+      "id": "udaygirhepunje41arc-like-copy-link@gmail.com"
+    }
   }
-}
 } 
