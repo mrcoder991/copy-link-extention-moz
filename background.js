@@ -25,14 +25,12 @@ let currentTheme = 'light';
 
 function updateTheme() {
   browser.theme.getCurrent().then(theme => {
-    console.log("Updating theme", theme);
     
     // For auto theme (empty theme object) or when no theme info is available
     if (!theme.colors && !theme.properties) {
       // Check if browser is using dark theme by looking at toolbar color
       const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
       currentTheme = prefersDark ? 'dark' : 'light';
-      console.log("Auto theme detected, using system preference:", currentTheme);
       updateIcons();
       return;
     }
@@ -40,7 +38,6 @@ function updateTheme() {
     // For manual theme, analyze the sidebar color
     if (theme.colors && theme.colors.sidebar) {
       const sidebarColor = theme.colors.sidebar;
-      console.log("Using sidebar color:", sidebarColor);
       
       // Extract RGB values from sidebar color
       const rgb = sidebarColor.match(/\d+/g);
@@ -48,21 +45,17 @@ function updateTheme() {
         const [r, g, b] = rgb.map(Number);
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
         currentTheme = brightness < 128 ? 'dark' : 'light';
-        console.log("Calculated theme from sidebar:", currentTheme, "Brightness:", brightness);
       } else {
         // If we can't parse the color, check if it's a dark theme by name
         currentTheme = sidebarColor.toLowerCase().includes('dark') ? 'dark' : 'light';
-        console.log("Could not parse sidebar color, using theme name:", currentTheme);
       }
     } else {
       // If no sidebar color, check if we have a color scheme property
       if (theme.properties && theme.properties.color_scheme) {
         currentTheme = theme.properties.color_scheme;
-        console.log("Using color_scheme property:", currentTheme);
       } else {
         // Default to light theme if we can't determine
         currentTheme = 'light';
-        console.log("No theme information found, defaulting to light theme");
       }
     }
     
@@ -113,7 +106,7 @@ browser.tabs.query({}).then((tabs) => {
 
 async function showHidePageAction(tabId) {
   const { showPageAction } = await browser.storage.local.get('showPageAction');
-  if (showPageAction !== false) { // default to true if not set
+  if (showPageAction !== false) {
     browser.pageAction.show(tabId);
   } else {
     browser.pageAction.hide(tabId);
