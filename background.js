@@ -25,31 +25,81 @@ let currentTheme = 'light';
 
 function updateTheme() {
   browser.theme.getCurrent().then(theme => {
-    if (theme.colors && theme.colors.toolbar) {
-      const rgb = theme.colors.toolbar.match(/\d+/g);
+    console.log("Updating theme", theme);
+    
+    // For auto theme (empty theme object) or when no theme info is available
+    if (!theme.colors && !theme.properties) {
+      // Check if browser is using dark theme by looking at toolbar color
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      currentTheme = prefersDark ? 'dark' : 'light';
+      console.log("Auto theme detected, using system preference:", currentTheme);
+      updateIcons();
+      return;
+    }
+    
+    // For manual theme, analyze the sidebar color
+    if (theme.colors && theme.colors.sidebar) {
+      const sidebarColor = theme.colors.sidebar;
+      console.log("Using sidebar color:", sidebarColor);
+      
+      // Extract RGB values from sidebar color
+      const rgb = sidebarColor.match(/\d+/g);
       if (rgb && rgb.length >= 3) {
         const [r, g, b] = rgb.map(Number);
         const brightness = (r * 299 + g * 587 + b * 114) / 1000;
         currentTheme = brightness < 128 ? 'dark' : 'light';
+        console.log("Calculated theme from sidebar:", currentTheme, "Brightness:", brightness);
       } else {
-        currentTheme = 'light';
+        // If we can't parse the color, check if it's a dark theme by name
+        currentTheme = sidebarColor.toLowerCase().includes('dark') ? 'dark' : 'light';
+        console.log("Could not parse sidebar color, using theme name:", currentTheme);
       }
     } else {
-      currentTheme = 'light';
+      // If no sidebar color, check if we have a color scheme property
+      if (theme.properties && theme.properties.color_scheme) {
+        currentTheme = theme.properties.color_scheme;
+        console.log("Using color_scheme property:", currentTheme);
+      } else {
+        // Default to light theme if we can't determine
+        currentTheme = 'light';
+        console.log("No theme information found, defaulting to light theme");
+      }
     }
-    // Update both action and page action icons
-    browser.action.setIcon({ path: ICONS[currentTheme].link });
-    browser.pageAction.setIcon({ path: ICONS[currentTheme].link });
+    
+    updateIcons();
   }).catch(error => {
     console.error('Theme detection error:', error);
     currentTheme = 'light';
+    updateIcons();
   });
 }
 
-// Update theme when it changes
-browser.theme.onUpdated.addListener(updateTheme);
+function updateIcons() {
+  // Update browser action icon
+  browser.action.setIcon({ path: ICONS[currentTheme].link });
+  
+  // Update page action icons for all tabs
+  browser.tabs.query({}).then((tabs) => {
+    tabs.forEach((tab) => {
+      browser.pageAction.setIcon({ 
+        tabId: tab.id,
+        path: ICONS[currentTheme].link 
+      });
+    });
+  });
+}
+
 // Initial theme detection
 updateTheme();
+
+// Update theme when it changes
+browser.theme.onUpdated.addListener(updateTheme);
+
+// Listen for system color scheme changes
+if (window.matchMedia) {
+  const colorSchemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
+  colorSchemeMedia.addEventListener('change', updateTheme);
+}
 
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // For each tab that updates, decide if we show/hide the page action.
