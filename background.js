@@ -94,6 +94,20 @@ if (window.matchMedia) {
   colorSchemeMedia.addEventListener('change', updateTheme);
 }
 
+// Create context menu items
+browser.contextMenus.create({
+  id: "copy-url-page",
+  title: "Copy URL",
+  contexts: ["page", "tab"],
+});
+
+// Handle context menu clicks
+browser.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "copy-url-page" || info.menuItemId === "copy-url-tab") {
+    copyUrlAndAnimateIcon(tab, 'action');
+  }
+});
+
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   // For each tab that updates, decide if we show/hide the page action.
   showHidePageAction(tabId);
